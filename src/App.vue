@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <h1>{{ msg }}</h1>
+    <h1 class="title">{{ msg }}</h1>
     <div class="content">
-      <chatcom :curUser="curUser"></chatcom>
+      <chatcom :curUser="userlist[curUserIndex]"></chatcom>
       <userlistcom @selectUser="toggleUser" :userlist="userlist"></userlistcom>
     </div>
   </div>
@@ -38,15 +38,12 @@ export default {
           headerimg: require("./assets/image/4.jpg")
         }
       ],
-      curUser: {
-        username: "",
-        headerimg: ""
-      }
+      curUserIndex: 0
     };
   },
   methods: {
     toggleUser: function(index) {
-      this.curUser = this.userlist[index];
+      this.curUserIndex = index;
     }
   }
 };
@@ -57,5 +54,8 @@ export default {
   width: 800px;
   height: 700px;
   margin: 50px auto;
+}
+.title {
+  text-align: center;
 }
 </style>
