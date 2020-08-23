@@ -2,9 +2,15 @@
   <div class="chat">
     <h1 class="user">{{ curUser.username }}</h1>
     <div class="chatlist">
-      <chatItem> </chatItem>
+      <chatItem
+        v-for="(item, index) in chatList"
+        :key="index"
+        :headerImg="item.user.headerimg"
+      >
+        <template v-slot:chatContent>{{ item.content }}</template>
+      </chatItem>
     </div>
-    <chatInputCom></chatInputCom>
+    <chatInputCom :sendEvent="sendEvent"> </chatInputCom>
   </div>
 </template>
 
@@ -16,6 +22,30 @@ export default {
   components: {
     chatInputCom,
     chatItem
+  },
+  data() {
+    return {
+      chatList: [
+        {
+          user: {
+            username: "小明",
+            headerimg: require("../assets/image/1.jpg")
+          },
+          content: "吃饭了吗"
+        }
+      ]
+    };
+  },
+  methods: {
+    sendEvent: function(content) {
+      this.chatList.push({
+        user: {
+          username: "小明",
+          headerimg: require("../assets/image/1.jpg")
+        },
+        content: content
+      });
+    }
   }
 };
 </script>
