@@ -1,61 +1,28 @@
 <template>
   <div id="app">
-    <h1 class="title">{{ msg }}</h1>
-    <div class="content">
-      <chatcom :curUser="userlist[curUserIndex]"></chatcom>
-      <userlistcom @selectUser="toggleUser" :userlist="userlist"></userlistcom>
-    </div>
+    <img alt="Vue logo" src="./assets/logo.png">
+    <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
-<script>
-import chatcom from "./components/chatcom.vue";
-import userlistcom from "./components/userlistcom.vue";
-export default {
-  name: "App",
-  components: {
-    chatcom,
-    userlistcom
-  },
 
-  data() {
-    return {
-      msg: "Copy-Wechat",
-      userlist: [
-        {
-          username: "小明",
-          headerimg: require("./assets/image/1.jpg")
-        },
-        {
-          username: "小黄",
-          headerimg: require("./assets/image/2.jpg")
-        },
-        {
-          username: "小东",
-          headerimg: require("./assets/image/3.jpg")
-        },
-        {
-          username: "小星",
-          headerimg: require("./assets/image/4.jpg")
-        }
-      ],
-      curUserIndex: 0
-    };
-  },
-  methods: {
-    toggleUser: function(index) {
-      this.curUserIndex = index;
-    }
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
   }
-};
-</script>
-<style scoped>
-.content {
-  display: flex;
-  width: 800px;
-  height: 700px;
-  margin: 50px auto;
 }
-.title {
+</script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
 </style>
