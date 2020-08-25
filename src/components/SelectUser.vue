@@ -16,12 +16,15 @@
 </template>
 
 <script>
+import socket from "../router/mysocket";
 export default {
   props: ["userlist"],
   methods: {
     selectEvent: function(sel) {
       this.$root.currentUser = sel;
       localStorage.currentUser = JSON.stringify(sel);
+      console.log(socket);
+      socket.emit("login", sel);
     }
   }
 };
