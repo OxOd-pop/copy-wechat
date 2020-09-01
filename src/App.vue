@@ -11,7 +11,12 @@
       :selectuser="selectuser"
       :unreadlist="unreadlist"
     ></userListC>
-    <chatUser v-if="ischat" :touser="touser" :closechat="closechat"></chatUser>
+    <chatUser
+      v-if="ischat"
+      :touser="touser"
+      :closechat="closechat"
+      :newMsg="newMsg"
+    ></chatUser>
   </div>
 </template>
 
@@ -36,16 +41,25 @@ export default {
       users: [],
       touser: null,
       ischat: false,
-      unreadlist: []
+      unreadlist: [],
+      newMsg: null
     };
+  },
+  computed: {
+    usersObj: function() {
+      let obj = {};
+      this.users.forEach(item => {
+        obj[item.id] = item;
+      });
+
+      return obj;
+    }
   },
   beforeMount() {
     var myself = this;
     axios.get("http://localhost:3000/api/userlist").then(function(res) {
-      console.log(res);
       myself.userlist = res.data.recordset;
     });
-    localStorage.clear();
   },
   mounted() {
     var that = this;
@@ -74,45 +88,63 @@ export default {
 
     sockett.on("unreadMsg", msg => {
       msg.forEach(item => {
-        let newfrom = this.users.find(i => {
-          return i.id == item.fromId;
-        });
+        this.saveStorage(item.fromId, item);
         this.unreadlist.push(item.fromId);
-        let fileName =
-          "chat-user-" +
-          this.$root.currentUser.userName +
-          "-" +
-          newfrom.userName;
-
-        let newMsg = {
-          from: newfrom,
-          to: this.$root.currentUser,
-          content: item.content,
-          time: item.time,
-          isread: item.isread
-        };
-        let arr = [];
-        if (localStorage[fileName] != null) {
-          arr = JSON.parse(localStorage[fileName]);
-          arr = Array.from(arr);
-          arr.push(newMsg);
-        } else {
-          arr.push(newMsg);
-        }
-
-        localStorage[fileName] = JSON.stringify(arr);
-        console.log(localStorage[fileName]);
       });
+    });
+
+    sockett.on("accept", msg => {
+      console.log(msg);
+      if (
+        this.ischat &&
+        (this.touser.id == msg.from.id ||
+          (msg.to.isGroup == true && msg.to.id == this.touser.id))
+      ) {
+        this.newMsg = msg;
+      } else {
+        this.saveStorage(msg.from.id, msg);
+        this.unreadlist.push(msg.from.id);
+      }
     });
   },
   methods: {
     selectuser: function(user) {
       this.touser = user;
       this.ischat = true;
+
+      for (let i = 0; i < this.unreadlist.length; i++) {
+        if (this.unreadlist[i] == this.touser.id) {
+          this.unreadlist.splice(i, 1);
+          break;
+        }
+      }
     },
     closechat: function() {
       this.touser = null;
       this.ischat = false;
+    },
+    saveStorage(touserId, msg) {
+      let newfrom = this.usersObj[touserId];
+      let fileName =
+        "chat-user-" + this.$root.currentUser.userName + "-" + newfrom.userName;
+
+      let newMsg = {
+        from: newfrom,
+        to: this.$root.currentUser,
+        content: msg.content,
+        time: msg.time,
+        isread: msg.isread
+      };
+      let arr = [];
+      if (localStorage[fileName] != null) {
+        arr = JSON.parse(localStorage[fileName]);
+        arr = Array.from(arr);
+        arr.push(newMsg);
+      } else {
+        arr.push(newMsg);
+      }
+
+      localStorage[fileName] = JSON.stringify(arr);
     }
   }
 };

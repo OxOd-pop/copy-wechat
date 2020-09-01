@@ -4,7 +4,7 @@
       <span class="back" @click="closechat">X</span>
       <div>{{ toUserName }}</div>
     </div>
-    <div class="chatlist">
+    <div class="chatlist" ref="chatbox">
       <div
         v-for="(item, index) in chatlist"
         class="chatitem"
@@ -29,7 +29,7 @@
 <script>
 import socket from "../router/mysocket";
 export default {
-  props: ["touser", "closechat"],
+  props: ["touser", "closechat", "newMsg"],
   data() {
     return {
       inputData: "",
@@ -78,10 +78,34 @@ export default {
         this.chatlist = JSON.parse(localStorage[fileName]);
         console.log(this.chatlist);
       }
+    },
+    updateChatBox() {
+      let chatbox = this.$refs.chatbox;
+      chatbox.scrollTop = chatbox.scrollHeight - chatbox.clientHeight;
+    },
+    sendReadMsg() {
+      socket.emit("readMsg", {
+        self: this.$root.currentUser.id,
+        userId: this.touser.id
+      });
     }
   },
   beforeMount() {
     this.getStorage();
+    this.sendReadMsg();
+  },
+  mounted() {
+    this.updateChatBox();
+  },
+  updated() {
+    this.updateChatBox();
+  },
+  watch: {
+    newMsg: function(val) {
+      this.chatlist.push(val);
+      this.saveStorage();
+      this.sendReadMsg();
+    }
   }
 };
 </script>
@@ -119,6 +143,7 @@ export default {
   position: relative;
 }
 .chatlist {
+  overflow: scroll;
   flex: 1;
 }
 .inputcom {
